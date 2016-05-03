@@ -1,18 +1,19 @@
 package com.homeaway.tests;
 
-import static org.junit.Assert.assertNotNull;
-
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 
+import com.homeaway.pageobjects.AccountPage;
 import com.homeaway.pageobjects.AddToCartConfirmationPage;
 import com.homeaway.pageobjects.CheckoutPage;
+import com.homeaway.pageobjects.HomePage;
 import com.homeaway.pageobjects.Iphone4SPage;
 import com.homeaway.pageobjects.IphoneProductListPage;
 
@@ -25,6 +26,7 @@ public class ExerciseOneTests {
 	  private String username = "szuchunh";
 	  private String password = "testpassword123!";
 	  private double iphoneCost = 270;
+	  private String cartMessage = "Oops, there is nothing in your cart.";
 
 	  @Before
 	  public void setUp() throws Exception {
@@ -72,7 +74,64 @@ public class ExerciseOneTests {
 		  Double expectedTotalCost = iphoneCost + shippingCost;
 		  Assert.assertEquals(expectedTotalCost, actualTotalCost);
 		  
-		  System.out.println("asdf");
+	  }
+	  
+	  @Test	  
+	  public void accountDetailTest() throws InterruptedException {
+		  //Navigate to home page
+		  driver.get(baseUrl);
+		  
+		  //Login to My Account
+		  HomePage.myAccountButton(driver).click();
+		  AccountPage.usernameField(driver).sendKeys(username);
+		  AccountPage.passwordField(driver).sendKeys(password);
+		  AccountPage.loginButton(driver).click();		  
+		  AccountPage.detailsLink(driver).click();
+		  
+		  //Input new value to city field and save
+		  Random r = new Random();
+		  int randomNum = r.nextInt(100) + 1;
+		  String newFirstName = "First" + String.valueOf(randomNum);
+		  AccountPage.firstNameField(driver).sendKeys(Keys.chord(Keys.CONTROL, "a"));
+		  AccountPage.firstNameField(driver).sendKeys(newFirstName);
+		  AccountPage.lastNameField(driver).click();
+		  Thread.sleep(3000);
+		  AccountPage.submitButton(driver).click();
+		  AccountPage.logoutLink(driver).click();
+		  
+		  //Back to Homepage
+		  driver.get(baseUrl);
+		  
+		  //Login to My Account
+		  HomePage.myAccountButton(driver).click();
+		  AccountPage.usernameField(driver).sendKeys(username);
+		  AccountPage.passwordField(driver).sendKeys(password);
+		  AccountPage.loginButton(driver).click();		  
+		  AccountPage.detailsLink(driver).click();
+		  
+		  //Assert first name is updated
+		  Assert.assertEquals(newFirstName, AccountPage.firstNameField(driver).getAttribute("value"));
+		  
+	  }
+	  
+	  @Test
+	  public void EmptyCartTest() throws InterruptedException {
+		  //Navigate to Iphone products page
+		  driver.get(iphonesPageUrl);
+		  
+		  //Add Iphone to cart
+		  IphoneProductListPage.iphone4SLink(driver).click();
+		  Iphone4SPage.addToCartButton(driver).click();		  
+		  AddToCartConfirmationPage.goToCheckoutButton(driver).click();
+		  
+		  //Remove item
+		  CheckoutPage.quantityField(driver).sendKeys(Keys.chord(Keys.CONTROL, "a"));
+		  CheckoutPage.quantityField(driver).sendKeys("0");
+		  CheckoutPage.updateButton(driver).click();
+		  
+		  //Assert empty cart message is displayed
+		  Assert.assertTrue(CheckoutPage.bodyText(driver).getText().contains(cartMessage));
+		  
 	  }
 
 	  @After

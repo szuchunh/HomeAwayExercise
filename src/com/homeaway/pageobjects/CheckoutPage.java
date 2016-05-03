@@ -70,4 +70,28 @@ public class CheckoutPage {
         return element;
 
    }
+    
+    public static WebElement quantityField(WebDriver driver){
+     	 
+        element = driver.findElement(By.name("quantity"));
+
+        return element;
+
+   }
+    
+    public static WebElement updateButton(WebDriver driver){
+    	 
+        element = driver.findElement(By.name("submit"));
+
+        return element;
+
+   }
+    
+    public static WebElement bodyText(WebDriver driver){
+   	 
+        element = driver.findElement(By.className("entry-content"));
+
+        return element;
+
+   }
 }
